@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Recommendation System - PSN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .filters-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-group select {
+            cursor: pointer;
+            background: white;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .results-section {
+            padding: 30px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-header h2 {
+            color: #333;
+            font-size: 1.8em;
+        }
+
+        .results-count {
+            background: #667eea;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+            transform: scale(1.01);
+        }
+
+        td {
+            padding: 15px;
+            color: #333;
+        }
+
+        .supplier-id {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .supplier-name {
+            font-weight: 500;
+        }
+
+        .rating {
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .rounded-rating {
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .vendor-class {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.85em;
+            display: inline-block;
+        }
+
+        .vendor-strategic {
+            background: #28a745;
+            color: white;
+        }
+
+        .vendor-critical {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .vendor-leverage {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .vendor-tail {
+            background: #6c757d;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .no-results i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .no-results h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .table-container {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Supplier Recommendation System</h1>
+            <p>Preferred Supplier Network (PSN) - AI-Powered Procurement Analytics</p>
+        </div>
+
+        <div class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="numRecommendations">Number of Recommendations:</label>
+                    <input type="number" id="numRecommendations" value="5" min="1" max="20">
+                </div>
+
+                <div class="filter-group">
+                    <label for="supplierScore">Supplier Score Cutoff:</label>
+                    <input type="number" id="supplierScore" value="50" min="0" max="100">
+                </div>
+
+                <div class="filter-group">
+                    <label for="country">Country:</label>
+                    <select id="country">
+                        <option value="">All Countries</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="materialCategory">Material Category:</label>
+                    <select id="materialCategory">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="materialSubcategory">Material Subcategory:</label>
+                    <select id="materialSubcategory">
+                        <option value="">All Subcategories</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="purchasingPackage">Purchasing Package (PP):</label>
+                    <select id="purchasingPackage">
+                        <option value="">All Packages</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button class="btn btn-primary" onclick="getRecommendations()">🔍 Get Recommendations</button>
+                <button class="btn btn-secondary" onclick="resetFilters()">🔄 Reset Filters</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header">
+                <h2>Recommended Suppliers</h2>
+                <span class="results-count" id="resultsCount">0 Results</span>
+            </div>
+
+            <div class="table-container">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Supplier ID</th>
+                            <th>Supplier Name</th>
+                            <th>Country</th>
+                            <th>Material Category</th>
+                            <th>Subcategory</th>
+                            <th>PP Code</th>
+                            <th>Supplier Score</th>
+                            <th>Rating</th>
+                            <th>Vendor Classification</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <tr>
+                            <td colspan="9" class="no-results">
+                                <div>
+                                    <div style="font-size: 4em; opacity: 0.3;">📊</div>
+                                    <h3>No Results Yet</h3>
+                                    <p>Set your filters and click "Get Recommendations" to see supplier recommendations</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data - Replace with your actual data from Excel/API
+        const suppliersData = [
+        {
+                "supplier_id": "SUP-001",
+                "supplier_name": "MATTEI COMPRESSORS INC.",
+                "country": "Canada",
+                "material_category": "Compressed Air System",
+                "material_subcategory": "Compressed Air System",
+                "pp_code": "Compressed Air System",
+                "supplier_score": 78.51,
+                "rating": 7.85,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-002",
+                "supplier_name": "BURKERT-CONTROMATIC INC.",
+                "country": "UK",
+                "material_category": "Angle Seat Valve",
+                "material_subcategory": "Angle Seat Valve",
+                "pp_code": "Angle Seat Valve",
+                "supplier_score": 89.18,
+                "rating": 8.92,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-003",
+                "supplier_name": "CONBRACO INDUSTRIES INC",
+                "country": "Norway",
+                "material_category": "Ball Valve",
+                "material_subcategory": "Ball Valve",
+                "pp_code": "Ball Valve",
+                "supplier_score": 76.02,
+                "rating": 7.6,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-004",
+                "supplier_name": "AERZEN CANADA INC.",
+                "country": "USA",
+                "material_category": "Blower",
+                "material_subcategory": "Blower",
+                "pp_code": "Blower",
+                "supplier_score": 68.05,
+                "rating": 6.81,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-005",
+                "supplier_name": "ROTORK CONTROLS, INC.",
+                "country": "Canada",
+                "material_category": "Butterfly Valve",
+                "material_subcategory": "Butterfly Valve",
+                "pp_code": "Butterfly Valve",
+                "supplier_score": 86.64,
+                "rating": 8.66,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-006",
+                "supplier_name": "LAKESIDE PROCESS CONTROLS LTD.",
+                "country": "UAE",
+                "material_category": "Butterfly Valve 2",
+                "material_subcategory": "Butterfly Valve 2",
+                "pp_code": "Butterfly Valve 2",
+                "supplier_score": 74.41,
+                "rating": 7.44,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-007",
+                "supplier_name": "BRAY CONTROLS CANADA LTD.",
+                "country": "Japan",
+                "material_category": "Check Valve",
+                "material_subcategory": "Check Valve",
+                "pp_code": "Check Valve",
+                "supplier_score": 81.03,
+                "rating": 8.1,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-008",
+                "supplier_name": "Hach Sales & Service Canada Ltd.",
+                "country": "USA",
+                "material_category": "Anaylzers & Sensors",
+                "material_subcategory": "Anaylzers & Sensors",
+                "pp_code": "Anaylzers & Sensors",
+                "supplier_score": 89.46,
+                "rating": 8.95,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-009",
+                "supplier_name": "KELTOUR CONTROLS INC.",
+                "country": "Norway",
+                "material_category": "Control System Spare Parts and Licensing Software on Laptop",
+                "material_subcategory": "Control System Spare Parts and Licensing Software on Laptop",
+                "pp_code": "Control System Spare Parts and Licensing Software on Laptop",
+                "supplier_score": 98.16,
+                "rating": 9.82,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-010",
+                "supplier_name": "Flowserve US Inc.",
+                "country": "UK",
+                "material_category": "Hot Water Back Pulse CIP Pumps",
+                "material_subcategory": "Hot Water Back Pulse CIP Pumps",
+                "pp_code": "Hot Water Back Pulse CIP Pumps",
+                "supplier_score": 85.52,
+                "rating": 8.55,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-011",
+                "supplier_name": "3D MECHANICAL",
+                "country": "Germany",
+                "material_category": "Frame 64/96M,1000V3 Bracket",
+                "material_subcategory": "Frame 64/96M,1000V3 Bracket",
+                "pp_code": "Frame 64/96M,1000V3 Bracket",
+                "supplier_score": 74.63,
+                "rating": 7.46,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-012",
+                "supplier_name": "GOULDS PUMPS",
+                "country": "USA",
+                "material_category": "Permeate Pumps & Spare Parts Kit",
+                "material_subcategory": "Permeate Pumps & Spare Parts Kit",
+                "pp_code": "Permeate Pumps & Spare Parts Kit",
+                "supplier_score": 74.08,
+                "rating": 7.41,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-013",
+                "supplier_name": "MCPHEE ENTERPRISES",
+                "country": "Norway",
+                "material_category": "Flow Indicator",
+                "material_subcategory": "Flow Indicator",
+                "pp_code": "Flow Indicator",
+                "supplier_score": 69.15,
+                "rating": 6.92,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-014",
+                "supplier_name": "CONVAL PROCESS SOLUTIONS INC",
+                "country": "USA",
+                "material_category": "Pressure Gauge Instruments",
+                "material_subcategory": "Pressure Gauge Instruments",
+                "pp_code": "Pressure Gauge Instruments",
+                "supplier_score": 78.52,
+                "rating": 7.85,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-015",
+                "supplier_name": "NV PIPING SYSTEMS INC.",
+                "country": "Norway",
+                "material_category": "Air Header Permeate Header and Frame",
+                "material_subcategory": "Air Header Permeate Header and Frame",
+                "pp_code": "Air Header Permeate Header and Frame",
+                "supplier_score": 77.51,
+                "rating": 7.75,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-016",
+                "supplier_name": "POWERTHERM CO., INC.",
+                "country": "USA",
+                "material_category": "Silencer",
+                "material_subcategory": "Silencer",
+                "pp_code": "Silencer",
+                "supplier_score": 73.73,
+                "rating": 7.37,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-017",
+                "supplier_name": "STRAUB TADCO INC",
+                "country": "USA",
+                "material_category": "Straub Connections",
+                "material_subcategory": "Straub Connections",
+                "pp_code": "Straub Connections",
+                "supplier_score": 72.61,
+                "rating": 7.26,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-018",
+                "supplier_name": "WAJAX INDUSTRIAL COMPONENTS LP.",
+                "country": "USA",
+                "material_category": "Switch",
+                "material_subcategory": "Switch",
+                "pp_code": "Switch",
+                "supplier_score": 77.62,
+                "rating": 7.76,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-019",
+                "supplier_name": "PROCESS & STEAM SPECIALTIES",
+                "country": "Canada",
+                "material_category": "Air Release, Back Pressure Valve, Injec Quil",
+                "material_subcategory": "Air Release, Back Pressure Valve, Injec Quil",
+                "pp_code": "Air Release, Back Pressure Valve, Injec Quil",
+                "supplier_score": 88.99,
+                "rating": 8.9,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-020",
+                "supplier_name": "SUEZ WATER TECHNOLOGIES & SOLUTIONS",
+                "country": "USA",
+                "material_category": "ZeeWeed Permaflow Membrane Modules",
+                "material_subcategory": "ZeeWeed Permaflow Membrane Modules",
+                "pp_code": "ZeeWeed Permaflow Membrane Modules",
+                "supplier_score": 88.23,
+                "rating": 8.82,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-021",
+                "supplier_name": "PLASFAB LIMITED",
+                "country": "USA",
+                "material_category": "ZW-1000 Membrane Lifting Module",
+                "material_subcategory": "ZW-1000 Membrane Lifting Module",
+                "pp_code": "ZW-1000 Membrane Lifting Module",
+                "supplier_score": 84.66,
+                "rating": 8.47,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-022",
+                "supplier_name": "JOHN BROOKS COMPANY LTD.",
+                "country": "Canada",
+                "material_category": "Activated Carbon Filter w/Auto Drain",
+                "material_subcategory": "Activated Carbon Filter w/Auto Drain",
+                "pp_code": "Activated Carbon Filter w/Auto Drain",
+                "supplier_score": 78.02,
+                "rating": 7.8,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-023",
+                "supplier_name": "ENDRESS + HAUSER CANADA LTD.",
+                "country": "Canada",
+                "material_category": "LEVEL TRANSMITTER",
+                "material_subcategory": "LEVEL TRANSMITTER",
+                "pp_code": "LEVEL TRANSMITTER",
+                "supplier_score": 77.47,
+                "rating": 7.75,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-024",
+                "supplier_name": "SUEZ CANADA",
+                "country": "USA",
+                "material_category": "Spare parts, Lakeside, Burkert, Process & Steam E&H, Wajax Goulds, Aerzen",
+                "material_subcategory": "Spare parts, Lakeside, Burkert, Process & Steam E&H, Wajax Goulds, Aerzen",
+                "pp_code": "Spare parts, Lakeside, Burkert, Process & Steam E&H, Wajax Goulds, Aerzen",
+                "supplier_score": 71.4,
+                "rating": 7.14,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-025",
+                "supplier_name": "SPD Sales Limited",
+                "country": "France",
+                "material_category": "Instrument - Transmitter, Temperature",
+                "material_subcategory": "Instrument - Transmitter, Temperature",
+                "pp_code": "Instrument - Transmitter, Temperature",
+                "supplier_score": 91.52,
+                "rating": 9.15,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-026",
+                "supplier_name": "IFO",
+                "country": "Germany",
+                "material_category": "IFO (ALL IFO ITEMS FOR PROJECT)",
+                "material_subcategory": "IFO (ALL IFO ITEMS FOR PROJECT)",
+                "pp_code": "IFO (ALL IFO ITEMS FOR PROJECT)",
+                "supplier_score": 72.9,
+                "rating": 7.29,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-027",
+                "supplier_name": "Keltour US Inc.",
+                "country": "Norway",
+                "material_category": "DC Power Supply Panel",
+                "material_subcategory": "DC Power Supply Panel",
+                "pp_code": "DC Power Supply Panel",
+                "supplier_score": 76.98,
+                "rating": 7.7,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-028",
+                "supplier_name": "FRANKLIN EMPIRE INC.",
+                "country": "Norway",
+                "material_category": "Transformer",
+                "material_subcategory": "Transformer",
+                "pp_code": "Transformer",
+                "supplier_score": 89.15,
+                "rating": 8.92,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-029",
+                "supplier_name": "Contingency Release",
+                "country": "USA",
+                "material_category": "VFD (Conc. Pump)",
+                "material_subcategory": "VFD (Conc. Pump)",
+                "pp_code": "VFD (Conc. Pump)",
+                "supplier_score": 77.33,
+                "rating": 7.73,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-030",
+                "supplier_name": "GERRIE ELECTRIC LIMITED",
+                "country": "Brazil",
+                "material_category": "Fuses for Disconnect ",
+                "material_subcategory": "Fuses for Disconnect ",
+                "pp_code": "Fuses for Disconnect ",
+                "supplier_score": 64.01,
+                "rating": 6.4,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-031",
+                "supplier_name": "ABB INC.",
+                "country": "China",
+                "material_category": " Disconnect Switch for Conc Pump vfd",
+                "material_subcategory": " Disconnect Switch for Conc Pump vfd",
+                "pp_code": " Disconnect Switch for Conc Pump vfd",
+                "supplier_score": 91.6,
+                "rating": 9.16,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-032",
+                "supplier_name": "PFC EQUIPMENT, INC",
+                "country": "Germany",
+                "material_category": "Concentrate Pump",
+                "material_subcategory": "Concentrate Pump",
+                "pp_code": "Concentrate Pump",
+                "supplier_score": 76.57,
+                "rating": 7.66,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-033",
+                "supplier_name": "FASTENAL",
+                "country": "UAE",
+                "material_category": "Misc Items (Hardware)",
+                "material_subcategory": "Misc Items (Hardware)",
+                "pp_code": "Misc Items (Hardware)",
+                "supplier_score": 67.52,
+                "rating": 6.75,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-034",
+                "supplier_name": "RM Signs",
+                "country": "UK",
+                "material_category": "Misc Items (Tags)",
+                "material_subcategory": "Misc Items (Tags)",
+                "pp_code": "Misc Items (Tags)",
+                "supplier_score": 67.3,
+                "rating": 6.73,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-035",
+                "supplier_name": "PROVINCE ELECTRIC SUPPLY ",
+                "country": "China",
+                "material_category": "Misc Items (Tags)",
+                "material_subcategory": "Misc Items (Tags)",
+                "pp_code": "Misc Items (Tags)",
+                "supplier_score": 88.59,
+                "rating": 8.86,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-036",
+                "supplier_name": "Bray Controls Canada Ltd.",
+                "country": "USA",
+                "material_category": "Misc Items (Valves)",
+                "material_subcategory": "Misc Items (Valves)",
+                "pp_code": "Misc Items (Valves)",
+                "supplier_score": 95.08,
+                "rating": 9.51,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-037",
+                "supplier_name": "SUEZ GROUPE",
+                "country": "UK",
+                "material_category": "Membranes",
+                "material_subcategory": "Membranes",
+                "pp_code": "Membranes",
+                "supplier_score": 81.42,
+                "rating": 8.14,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-038",
+                "supplier_name": "* Duplicate Vendor - Check *",
+                "country": "USA",
+                "material_category": "Material Contingency",
+                "material_subcategory": "Material Contingency",
+                "pp_code": "Material Contingency",
+                "supplier_score": 75.1,
+                "rating": 7.51,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-039",
+                "supplier_name": "ENDRESS & HAUSER",
+                "country": "Germany",
+                "material_category": "Intrumentation",
+                "material_subcategory": "Intrumentation",
+                "pp_code": "Intrumentation",
+                "supplier_score": 87.71,
+                "rating": 8.77,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-040",
+                "supplier_name": "FLOWSERVE",
+                "country": "France",
+                "material_category": "Pumps (Permeate, Backpulse, Drain)",
+                "material_subcategory": "Pumps (Permeate, Backpulse, Drain)",
+                "pp_code": "Pumps (Permeate, Backpulse, Drain)",
+                "supplier_score": 79.69,
+                "rating": 7.97,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-041",
+                "supplier_name": "Prominent Fluid Controls Inc.",
+                "country": "USA",
+                "material_category": "Chemical Pump - Citric Acid",
+                "material_subcategory": "Chemical Pump - Citric Acid",
+                "pp_code": "Chemical Pump - Citric Acid",
+                "supplier_score": 78.41,
+                "rating": 7.84,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-042",
+                "supplier_name": "SYLVAN AUTOMATION LTD",
+                "country": "China",
+                "material_category": "Valves",
+                "material_subcategory": "Valves",
+                "pp_code": "Valves",
+                "supplier_score": 74.96,
+                "rating": 7.5,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-043",
+                "supplier_name": "Great Lakes Industrial Controls",
+                "country": "USA",
+                "material_category": "Valves",
+                "material_subcategory": "Valves",
+                "pp_code": "Valves",
+                "supplier_score": 83.64,
+                "rating": 8.36,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-044",
+                "supplier_name": "Hamlet Canada Fittings & Valves",
+                "country": "USA",
+                "material_category": "Valves",
+                "material_subcategory": "Valves",
+                "pp_code": "Valves",
+                "supplier_score": 93.23,
+                "rating": 9.32,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-045",
+                "supplier_name": "SWAGELOK SOUTHWESTERN ONTARIO",
+                "country": "China",
+                "material_category": "Valves",
+                "material_subcategory": "Valves",
+                "pp_code": "Valves",
+                "supplier_score": 71.33,
+                "rating": 7.13,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-046",
+                "supplier_name": "Harrington Industrial Plastics",
+                "country": "Canada",
+                "material_category": "Valves",
+                "material_subcategory": "Valves",
+                "pp_code": "Valves",
+                "supplier_score": 95.45,
+                "rating": 9.54,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-047",
+                "supplier_name": "GEORG FISCHER PIPING SYSTEMS LTD",
+                "country": "Brazil",
+                "material_category": "Valves",
+                "material_subcategory": "Valves",
+                "pp_code": "Valves",
+                "supplier_score": 69.36,
+                "rating": 6.94,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-048",
+                "supplier_name": "Compressor Science Inc.",
+                "country": "Germany",
+                "material_category": "Air Compressors",
+                "material_subcategory": "Air Compressors",
+                "pp_code": "Air Compressors",
+                "supplier_score": 76.97,
+                "rating": 7.7,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-049",
+                "supplier_name": "The Leffler Group",
+                "country": "USA",
+                "material_category": "Seismic Cals",
+                "material_subcategory": "Seismic Cals",
+                "pp_code": "Seismic Cals",
+                "supplier_score": 69.6,
+                "rating": 6.96,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-050",
+                "supplier_name": "Proax Technologies Ltd",
+                "country": "France",
+                "material_category": "Spares - Electrical / Instrumentation",
+                "material_subcategory": "Spares - Electrical / Instrumentation",
+                "pp_code": "Spares - Electrical / Instrumentation",
+                "supplier_score": 87.56,
+                "rating": 8.76,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-051",
+                "supplier_name": "Keltour Controls Inc.",
+                "country": "USA",
+                "material_category": "Spares - Electrical / Instrumentation",
+                "material_subcategory": "Spares - Electrical / Instrumentation",
+                "pp_code": "Spares - Electrical / Instrumentation",
+                "supplier_score": 87.75,
+                "rating": 8.78,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-052",
+                "supplier_name": "CST Industries",
+                "country": "Japan",
+                "material_category": "Tank Cover",
+                "material_subcategory": "Tank Cover",
+                "pp_code": "Tank Cover",
+                "supplier_score": 73.15,
+                "rating": 7.31,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-053",
+                "supplier_name": "AERZEN CANADA INC",
+                "country": "China",
+                "material_category": "Blowers",
+                "material_subcategory": "Blowers",
+                "pp_code": "Blowers",
+                "supplier_score": 94.06,
+                "rating": 9.41,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-054",
+                "supplier_name": "HACH SALES & SERVICE CANADA LTD-REM",
+                "country": "France",
+                "material_category": "Cleaning Module Turbiditimeter",
+                "material_subcategory": "Cleaning Module Turbiditimeter",
+                "pp_code": "Cleaning Module Turbiditimeter",
+                "supplier_score": 88.84,
+                "rating": 8.88,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-055",
+                "supplier_name": "KOBOLD INSTRUMENTS CANADA INC.",
+                "country": "USA",
+                "material_category": "Flow Switches (Kobold)",
+                "material_subcategory": "Flow Switches (Kobold)",
+                "pp_code": "Flow Switches (Kobold)",
+                "supplier_score": 89.53,
+                "rating": 8.95,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-056",
+                "supplier_name": "WAJAX INDUSTRIAL COMPONENTS",
+                "country": "Canada",
+                "material_category": "Pressure Switches (United Electric)",
+                "material_subcategory": "Pressure Switches (United Electric)",
+                "pp_code": "Pressure Switches (United Electric)",
+                "supplier_score": 89.52,
+                "rating": 8.95,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-057",
+                "supplier_name": "CONVAL EQUIPMENT LIMITED",
+                "country": "China",
+                "material_category": "Float Swith",
+                "material_subcategory": "Float Swith",
+                "pp_code": "Float Swith",
+                "supplier_score": 83.42,
+                "rating": 8.34,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-058",
+                "supplier_name": "Sylvan Automation Ltd.",
+                "country": "USA",
+                "material_category": "Manual Valves - Ball",
+                "material_subcategory": "Manual Valves - Ball",
+                "pp_code": "Manual Valves - Ball",
+                "supplier_score": 71.32,
+                "rating": 7.13,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-059",
+                "supplier_name": "Softchoice Corporation",
+                "country": "France",
+                "material_category": "Acronis Software",
+                "material_subcategory": "Acronis Software",
+                "pp_code": "Acronis Software",
+                "supplier_score": 78.05,
+                "rating": 7.81,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-060",
+                "supplier_name": "Compressor Science ",
+                "country": "USA",
+                "material_category": "Compressor",
+                "material_subcategory": "Compressor",
+                "pp_code": "Compressor",
+                "supplier_score": 61.3,
+                "rating": 6.13,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-061",
+                "supplier_name": "BETA PLASTICS INC",
+                "country": "Germany",
+                "material_category": "HDPE Panel Sheet",
+                "material_subcategory": "HDPE Panel Sheet",
+                "pp_code": "HDPE Panel Sheet",
+                "supplier_score": 83.97,
+                "rating": 8.4,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-062",
+                "supplier_name": "PROMINENT FLUID CONTROLS LTD.",
+                "country": "USA",
+                "material_category": "Chemical Skid/Pump",
+                "material_subcategory": "Chemical Skid/Pump",
+                "pp_code": "Chemical Skid/Pump",
+                "supplier_score": 73.58,
+                "rating": 7.36,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-063",
+                "supplier_name": "FASTENAL CANADA INC.",
+                "country": "Norway",
+                "material_category": "Hardware (Fatenal)",
+                "material_subcategory": "Hardware (Fatenal)",
+                "pp_code": "Hardware (Fatenal)",
+                "supplier_score": 81.0,
+                "rating": 8.1,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-064",
+                "supplier_name": "HAMILTON KENT INC.",
+                "country": "Germany",
+                "material_category": "Straub Coupling",
+                "material_subcategory": "Straub Coupling",
+                "pp_code": "Straub Coupling",
+                "supplier_score": 76.8,
+                "rating": 7.68,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-065",
+                "supplier_name": "Allgrade Bolt & Chain Inc.",
+                "country": "Germany",
+                "material_category": "Hardware (All Grade)",
+                "material_subcategory": "Hardware (All Grade)",
+                "pp_code": "Hardware (All Grade)",
+                "supplier_score": 80.8,
+                "rating": 8.08,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-066",
+                "supplier_name": "HILTI (CANADA) CORPORATION",
+                "country": "China",
+                "material_category": "Hardware (Hilti)",
+                "material_subcategory": "Hardware (Hilti)",
+                "pp_code": "Hardware (Hilti)",
+                "supplier_score": 87.6,
+                "rating": 8.76,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-067",
+                "supplier_name": "SUEZ WTS HUNGARY KFT",
+                "country": "Canada",
+                "material_category": "IFO- Membrane Modules, Spacers, Cassettes",
+                "material_subcategory": "IFO- Membrane Modules, Spacers, Cassettes",
+                "pp_code": "IFO- Membrane Modules, Spacers, Cassettes",
+                "supplier_score": 67.89,
+                "rating": 6.79,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-068",
+                "supplier_name": "ASB HEATING ELEMENTS LIMITED",
+                "country": "USA",
+                "material_category": "Cleaning Solution Electric Heater & Drain Valve",
+                "material_subcategory": "Cleaning Solution Electric Heater & Drain Valve",
+                "pp_code": "Cleaning Solution Electric Heater & Drain Valve",
+                "supplier_score": 72.89,
+                "rating": 7.29,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-069",
+                "supplier_name": "GRAYBAR CANADA",
+                "country": "UAE",
+                "material_category": "Overvoltage Protection Adder",
+                "material_subcategory": "Overvoltage Protection Adder",
+                "pp_code": "Overvoltage Protection Adder",
+                "supplier_score": 91.09,
+                "rating": 9.11,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-070",
+                "supplier_name": "Baumeier Corp.",
+                "country": "Brazil",
+                "material_category": "Valve Rack Skid - FRAME",
+                "material_subcategory": "Valve Rack Skid - FRAME",
+                "pp_code": "Valve Rack Skid - FRAME",
+                "supplier_score": 87.55,
+                "rating": 8.75,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-071",
+                "supplier_name": "Augusta Fiberglass",
+                "country": "Germany",
+                "material_category": "CIP Tank (with all fittings) & Permeate Storage/Backpulse Tank",
+                "material_subcategory": "CIP Tank (with all fittings) & Permeate Storage/Backpulse Tank",
+                "pp_code": "CIP Tank (with all fittings) & Permeate Storage/Backpulse Tank",
+                "supplier_score": 70.65,
+                "rating": 7.07,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-072",
+                "supplier_name": "PINACLE STAINLESS STEEL INC.",
+                "country": "USA",
+                "material_category": "MIT Vent & MIT Air Panel",
+                "material_subcategory": "MIT Vent & MIT Air Panel",
+                "pp_code": "MIT Vent & MIT Air Panel",
+                "supplier_score": 93.74,
+                "rating": 9.37,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-073",
+                "supplier_name": "ENGINEERED ELECTRIC CONTROLS LIMITED",
+                "country": "USA",
+                "material_category": "VE One PLC Controls System",
+                "material_subcategory": "VE One PLC Controls System",
+                "pp_code": "VE One PLC Controls System",
+                "supplier_score": 93.39,
+                "rating": 9.34,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-074",
+                "supplier_name": "AMIAD USA INC.",
+                "country": "USA",
+                "material_category": "Feed Self Cleaning Auto Strainer with Pressure Differential Switch & Drain Valve",
+                "material_subcategory": "Feed Self Cleaning Auto Strainer with Pressure Differential Switch & Drain Valve",
+                "pp_code": "Feed Self Cleaning Auto Strainer with Pressure Differential Switch & Drain Valve",
+                "supplier_score": 71.82,
+                "rating": 7.18,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-075",
+                "supplier_name": "DYNAMIX",
+                "country": "France",
+                "material_category": "CIP tank mixers",
+                "material_subcategory": "CIP tank mixers",
+                "pp_code": "CIP tank mixers",
+                "supplier_score": 70.94,
+                "rating": 7.09,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-076",
+                "supplier_name": "Hach Company",
+                "country": "USA",
+                "material_category": "Turbidity Panel Assembly & Adder Input Output (i/o) for Common Equipment",
+                "material_subcategory": "Turbidity Panel Assembly & Adder Input Output (i/o) for Common Equipment",
+                "pp_code": "Turbidity Panel Assembly & Adder Input Output (i/o) for Common Equipment",
+                "supplier_score": 70.93,
+                "rating": 7.09,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-077",
+                "supplier_name": "CHEMLINE PLASTICS LIMITED",
+                "country": "Norway",
+                "material_category": "Back Press and Press Relief Valves",
+                "material_subcategory": "Back Press and Press Relief Valves",
+                "pp_code": "Back Press and Press Relief Valves",
+                "supplier_score": 74.43,
+                "rating": 7.44,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-078",
+                "supplier_name": "TITAN PIPING SYSTEMS INC.",
+                "country": "Canada",
+                "material_category": "Manufacturing / Third Party Assembly",
+                "material_subcategory": "Manufacturing / Third Party Assembly",
+                "pp_code": "Manufacturing / Third Party Assembly",
+                "supplier_score": 73.63,
+                "rating": 7.36,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-079",
+                "supplier_name": "Wonderware Canada",
+                "country": "UAE",
+                "material_category": "Software & Support",
+                "material_subcategory": "Software & Support",
+                "pp_code": "Software & Support",
+                "supplier_score": 78.66,
+                "rating": 7.87,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-080",
+                "supplier_name": "SUEZ Canada",
+                "country": "USA",
+                "material_category": "IFO Cost for Project",
+                "material_subcategory": "IFO Cost for Project",
+                "pp_code": "IFO Cost for Project",
+                "supplier_score": 76.26,
+                "rating": 7.63,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-081",
+                "supplier_name": "BRANT CORROSION CONTROL,",
+                "country": "USA",
+                "material_category": "Skid Frame Painting  ",
+                "material_subcategory": "Skid Frame Painting  ",
+                "pp_code": "Skid Frame Painting  ",
+                "supplier_score": 92.81,
+                "rating": 9.28,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-082",
+                "supplier_name": "Plasfab Inc",
+                "country": "France",
+                "material_category": "Brackets Fabrication ",
+                "material_subcategory": "Brackets Fabrication ",
+                "pp_code": "Brackets Fabrication ",
+                "supplier_score": 90.6,
+                "rating": 9.06,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-083",
+                "supplier_name": "SOUTH GATE ENGINEERING",
+                "country": "Germany",
+                "material_category": "WAC Vessel Frames & Brackets",
+                "material_subcategory": "WAC Vessel Frames & Brackets",
+                "pp_code": "WAC Vessel Frames & Brackets",
+                "supplier_score": 65.17,
+                "rating": 6.52,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-084",
+                "supplier_name": "Bell Camp",
+                "country": "USA",
+                "material_category": "Piping ",
+                "material_subcategory": "Piping ",
+                "pp_code": "Piping ",
+                "supplier_score": 87.38,
+                "rating": 8.74,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-085",
+                "supplier_name": "PANDA PIPING LTD",
+                "country": "UK",
+                "material_category": "Resin Trap",
+                "material_subcategory": "Resin Trap",
+                "pp_code": "Resin Trap",
+                "supplier_score": 81.38,
+                "rating": 8.14,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-086",
+                "supplier_name": "BELL-CAMP MANUFACTURING",
+                "country": "China",
+                "material_category": "Piping (G)",
+                "material_subcategory": "Piping (G)",
+                "pp_code": "Piping (G)",
+                "supplier_score": 68.14,
+                "rating": 6.81,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-087",
+                "supplier_name": "Flowserve S.A.DE C.V",
+                "country": "Germany",
+                "material_category": "Pump (Flowserve API) ",
+                "material_subcategory": "Pump (Flowserve API) ",
+                "pp_code": "Pump (Flowserve API) ",
+                "supplier_score": 72.71,
+                "rating": 7.27,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-088",
+                "supplier_name": "SULZER PUMPS (CANADA) INC.",
+                "country": "Canada",
+                "material_category": "Pump (Sulzer API)",
+                "material_subcategory": "Pump (Sulzer API)",
+                "pp_code": "Pump (Sulzer API)",
+                "supplier_score": 96.23,
+                "rating": 9.62,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-089",
+                "supplier_name": "DANFROSS LLC",
+                "country": "USA",
+                "material_category": "Pump (Danfoss)",
+                "material_subcategory": "Pump (Danfoss)",
+                "pp_code": "Pump (Danfoss)",
+                "supplier_score": 78.85,
+                "rating": 7.89,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-090",
+                "supplier_name": "Milton Roy Company",
+                "country": "USA",
+                "material_category": "Pump (Milton Roy)",
+                "material_subcategory": "Pump (Milton Roy)",
+                "pp_code": "Pump (Milton Roy)",
+                "supplier_score": 69.79,
+                "rating": 6.98,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-091",
+                "supplier_name": "FLUID EQUIPMENT DEVELOPMENT",
+                "country": "Germany",
+                "material_category": "Pump (Fedco)",
+                "material_subcategory": "Pump (Fedco)",
+                "pp_code": "Pump (Fedco)",
+                "supplier_score": 67.55,
+                "rating": 6.76,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-092",
+                "supplier_name": "ABC12345",
+                "country": "Germany",
+                "material_category": "Pump (BlueWhite)",
+                "material_subcategory": "Pump (BlueWhite)",
+                "pp_code": "Pump (BlueWhite)",
+                "supplier_score": 73.15,
+                "rating": 7.32,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-093",
+                "supplier_name": "F.D.Thomas",
+                "country": "Canada",
+                "material_category": "Painting & Lining ",
+                "material_subcategory": "Painting & Lining ",
+                "pp_code": "Painting & Lining ",
+                "supplier_score": 62.34,
+                "rating": 6.23,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-094",
+                "supplier_name": "DIAMOND FIBERGLASS",
+                "country": "Canada",
+                "material_category": "Hero Feed Tank (Fiberglass) ",
+                "material_subcategory": "Hero Feed Tank (Fiberglass) ",
+                "pp_code": "Hero Feed Tank (Fiberglass) ",
+                "supplier_score": 88.71,
+                "rating": 8.87,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-095",
+                "supplier_name": "FIL-TREK CORPORATION",
+                "country": "USA",
+                "material_category": "Filter (Cartridge) ",
+                "material_subcategory": "Filter (Cartridge) ",
+                "pp_code": "Filter (Cartridge) ",
+                "supplier_score": 66.95,
+                "rating": 6.69,
+                "vendor_classification": "Leverage"
+        },
+        {
+                "supplier_id": "SUP-096",
+                "supplier_name": "PENTAIR FILTRATION SOLUTIONS, LLC",
+                "country": "Germany",
+                "material_category": "Membrane Housing ",
+                "material_subcategory": "Membrane Housing ",
+                "pp_code": "Membrane Housing ",
+                "supplier_score": 83.22,
+                "rating": 8.32,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-097",
+                "supplier_name": "KOFLO CORPORATION",
+                "country": "USA",
+                "material_category": "Static Mixers ",
+                "material_subcategory": "Static Mixers ",
+                "pp_code": "Static Mixers ",
+                "supplier_score": 71.22,
+                "rating": 7.12,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-098",
+                "supplier_name": "BLACOH FLUID CONTROL",
+                "country": "USA",
+                "material_category": "Pulsation Dampener ",
+                "material_subcategory": "Pulsation Dampener ",
+                "pp_code": "Pulsation Dampener ",
+                "supplier_score": 88.27,
+                "rating": 8.83,
+                "vendor_classification": "Strategic"
+        },
+        {
+                "supplier_id": "SUP-099",
+                "supplier_name": "Danfoss LLC",
+                "country": "Canada",
+                "material_category": "Check Valves (Danfoss)",
+                "material_subcategory": "Check Valves (Danfoss)",
+                "pp_code": "Check Valves (Danfoss)",
+                "supplier_score": 82.79,
+                "rating": 8.28,
+                "vendor_classification": "Critical"
+        },
+        {
+                "supplier_id": "SUP-100",
+                "supplier_name": "CRANE SUPPLY",
+                "country": "Japan",
+                "material_category": "Check Valves (Crane)",
+                "material_subcategory": "Check Valves (Crane)",
+                "pp_code": "Check Valves (Crane)",
+                "supplier_score": 96.83,
+                "rating": 9.68,
+                "vendor_classification": "Strategic"
+        }
+];
+
+        // Initialize dropdowns
+        function initializeFilters() {
+            // Get unique values
+            const countries = [...new Set(suppliersData.map(s => s.country))].sort();
+            const categories = [...new Set(suppliersData.map(s => s.material_category))].sort();
+            const subcategories = [...new Set(suppliersData.map(s => s.material_subcategory))].sort();
+            const packages = [...new Set(suppliersData.map(s => s.pp_code))].sort();
+
+            // Populate dropdowns
+            populateDropdown('country', countries);
+            populateDropdown('materialCategory', categories);
+            populateDropdown('materialSubcategory', subcategories);
+            populateDropdown('purchasingPackage', packages);
+        }
+
+        function populateDropdown(id, values) {
+            const select = document.getElementById(id);
+            const currentValue = select.value;
+            
+            // Keep the "All" option
+            select.innerHTML = `<option value="">All ${id.replace(/([A-Z])/g, ' $1').trim()}s</option>`;
+            
+            values.forEach(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                select.appendChild(option);
+            });
+
+            select.value = currentValue;
+        }
+
+        // Update subcategories based on selected category
+        document.getElementById('materialCategory').addEventListener('change', function() {
+            const selectedCategory = this.value;
+            if (selectedCategory) {
+                const subcategories = [...new Set(
+                    suppliersData
+                        .filter(s => s.material_category === selectedCategory)
+                        .map(s => s.material_subcategory)
+                )].sort();
+                populateDropdown('materialSubcategory', subcategories);
+            } else {
+                const allSubcategories = [...new Set(suppliersData.map(s => s.material_subcategory))].sort();
+                populateDropdown('materialSubcategory', allSubcategories);
+            }
+        });
+
+        function getRecommendations() {
+            // Get filter values
+            const numRecs = parseInt(document.getElementById('numRecommendations').value) || 5;
+            const scoreThreshold = parseFloat(document.getElementById('supplierScore').value) || 0;
+            const country = document.getElementById('country').value;
+            const category = document.getElementById('materialCategory').value;
+            const subcategory = document.getElementById('materialSubcategory').value;
+            const ppCode = document.getElementById('purchasingPackage').value;
+
+            // Filter suppliers
+            let filtered = suppliersData.filter(supplier => {
+                return supplier.supplier_score >= scoreThreshold &&
+                       (!country || supplier.country === country) &&
+                       (!category || supplier.material_category === category) &&
+                       (!subcategory || supplier.material_subcategory === subcategory) &&
+                       (!ppCode || supplier.pp_code === ppCode);
+            });
+
+            // Sort by score (descending)
+            filtered.sort((a, b) => b.supplier_score - a.supplier_score);
+
+            // Limit to requested number
+            filtered = filtered.slice(0, numRecs);
+
+            // Display results
+            displayResults(filtered);
+        }
+
+        function displayResults(suppliers) {
+            const tbody = document.getElementById('resultsBody');
+            const resultsCount = document.getElementById('resultsCount');
+
+            if (suppliers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="no-results">
+                            <div>
+                                <div style="font-size: 4em; opacity: 0.3;">🔍</div>
+                                <h3>No Suppliers Found</h3>
+                                <p>Try adjusting your filters to see more results</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                resultsCount.textContent = '0 Results';
+                return;
+            }
+
+            resultsCount.textContent = `${suppliers.length} Result${suppliers.length > 1 ? 's' : ''}`;
+
+            tbody.innerHTML = suppliers.map(supplier => `
+                <tr>
+                    <td class="supplier-id">${supplier.supplier_id}</td>
+                    <td class="supplier-name">${supplier.supplier_name}</td>
+                    <td>${supplier.country}</td>
+                    <td>${supplier.material_category}</td>
+                    <td>${supplier.material_subcategory}</td>
+                    <td>${supplier.pp_code}</td>
+                    <td class="rating">${supplier.supplier_score.toFixed(2)}</td>
+                    <td><span class="rounded-rating">${supplier.rating.toFixed(1)}</span></td>
+                    <td><span class="vendor-class vendor-${supplier.vendor_classification.toLowerCase()}">${supplier.vendor_classification}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function resetFilters() {
+            document.getElementById('numRecommendations').value = 5;
+            document.getElementById('supplierScore').value = 50;
+            document.getElementById('country').value = '';
+            document.getElementById('materialCategory').value = '';
+            document.getElementById('materialSubcategory').value = '';
+            document.getElementById('purchasingPackage').value = '';
+
+            // Reset results
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="no-results">
+                        <div>
+                            <div style="font-size: 4em; opacity: 0.3;">📊</div>
+                            <h3>No Results Yet</h3>
+                            <p>Set your filters and click "Get Recommendations" to see supplier recommendations</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            document.getElementById('resultsCount').textContent = '0 Results';
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            initializeFilters();
+        };
+    </script>
+</body>
+</html>
