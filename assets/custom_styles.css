@@ -1,0 +1,569 @@
+/* 
+Smart Supplier Recommendation System - Custom Styles
+Inspired by Horizon UI & TailAdmin
+Professional Light Theme
+*/
+
+/* ==================== ROOT VARIABLES ==================== */
+:root {
+    /* Primary Colors */
+    --primary-blue: #4318FF;
+    --primary-purple: #7551FF;
+    --secondary-blue: #3C50E0;
+    
+    /* Status Colors */
+    --success-green: #10B981;
+    --warning-orange: #F59E0B;
+    --danger-red: #EF4444;
+    --info-cyan: #06B6D4;
+    
+    /* Neutral Colors */
+    --background-light: #F4F7FE;
+    --card-white: #FFFFFF;
+    --text-primary: #1B2559;
+    --text-secondary: #A3AED0;
+    --border-light: #E2E8F0;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    
+    /* Spacing */
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+}
+
+/* ==================== GLOBAL STYLES ==================== */
+.main {
+    background-color: var(--background-light);
+    padding: var(--spacing-lg);
+}
+
+.block-container {
+    padding-top: var(--spacing-lg) !important;
+    padding-bottom: var(--spacing-lg) !important;
+    max-width: 1400px;
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-md);
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+p, span, div {
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* ==================== HEADER STYLES ==================== */
+.main-header {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    padding: var(--spacing-lg) 0;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--spacing-xl);
+}
+
+.page-header {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 3px solid var(--primary-blue);
+}
+
+.section-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: var(--spacing-lg) 0 var(--spacing-md) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* ==================== CARD COMPONENTS ==================== */
+.metric-card {
+    background: var(--card-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.metric-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+}
+
+.metric-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.metric-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.metric-card-icon.blue {
+    background: linear-gradient(135deg, #4318FF 0%, #7551FF 100%);
+}
+
+.metric-card-icon.green {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+}
+
+.metric-card-icon.orange {
+    background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+}
+
+.metric-card-icon.red {
+    background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+}
+
+.metric-card-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: var(--spacing-sm) 0;
+}
+
+.metric-card-change {
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.metric-card-change.positive {
+    color: var(--success-green);
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+.metric-card-change.negative {
+    color: var(--danger-red);
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* ==================== CHART CONTAINERS ==================== */
+.chart-container {
+    background: var(--card-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    margin-bottom: var(--spacing-lg);
+}
+
+.chart-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border-light);
+}
+
+/* ==================== FILTER SECTION ==================== */
+.filter-section {
+    background: var(--card-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    margin-bottom: var(--spacing-lg);
+}
+
+.filter-header {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* ==================== BUTTONS ==================== */
+.stButton > button {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+    color: white;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    padding: 0.75rem 2rem;
+    border: none;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stButton > button:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.stButton > button:active {
+    transform: translateY(0);
+}
+
+/* Secondary Button */
+.stButton.secondary > button {
+    background: white;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+}
+
+.stButton.secondary > button:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+/* ==================== SIDEBAR ==================== */
+.css-1d391kg, [data-testid="stSidebar"] {
+    background: var(--card-white);
+    border-right: 1px solid var(--border-light);
+}
+
+.sidebar .sidebar-content {
+    padding: var(--spacing-lg);
+}
+
+/* Sidebar Headers */
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Sidebar Widgets */
+[data-testid="stSidebar"] .stSelectbox,
+[data-testid="stSidebar"] .stMultiSelect,
+[data-testid="stSidebar"] .stSlider {
+    margin-bottom: var(--spacing-md);
+}
+
+/* ==================== TABLES ==================== */
+.dataframe {
+    border: none !important;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.dataframe thead tr th {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+    color: white !important;
+    font-weight: 600;
+    padding: var(--spacing-md);
+    text-align: left;
+    border: none !important;
+}
+
+.dataframe tbody tr {
+    border-bottom: 1px solid var(--border-light);
+    transition: background-color 0.2s ease;
+}
+
+.dataframe tbody tr:hover {
+    background-color: rgba(67, 24, 255, 0.05);
+}
+
+.dataframe tbody tr td {
+    padding: var(--spacing-md);
+    color: var(--text-primary);
+    border: none !important;
+}
+
+.dataframe tbody tr:nth-child(even) {
+    background-color: #F9FAFB;
+}
+
+/* ==================== TABS ==================== */
+.stTabs [data-baseweb="tab-list"] {
+    gap: var(--spacing-md);
+    background-color: transparent;
+    border-bottom: 2px solid var(--border-light);
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 50px;
+    padding: 0 var(--spacing-lg);
+    background-color: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+    color: white !important;
+}
+
+/* ==================== EXPANDERS ==================== */
+.streamlit-expanderHeader {
+    background: var(--card-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.streamlit-expanderHeader:hover {
+    background-color: rgba(67, 24, 255, 0.05);
+}
+
+.streamlit-expanderContent {
+    background: var(--card-white);
+    border: 1px solid var(--border-light);
+    border-top: none;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    padding: var(--spacing-md);
+}
+
+/* ==================== METRICS (st.metric) ==================== */
+[data-testid="stMetricValue"] {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+[data-testid="stMetricDelta"] {
+    font-weight: 600;
+}
+
+/* ==================== SELECT BOXES & INPUTS ==================== */
+.stSelectbox, .stMultiSelect, .stTextInput, .stNumberInput {
+    margin-bottom: var(--spacing-md);
+}
+
+.stSelectbox > div > div,
+.stMultiSelect > div > div,
+.stTextInput > div > div,
+.stNumberInput > div > div {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    background: var(--card-white);
+}
+
+.stSelectbox > div > div:focus-within,
+.stMultiSelect > div > div:focus-within,
+.stTextInput > div > div:focus-within,
+.stNumberInput > div > div:focus-within {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(67, 24, 255, 0.1);
+}
+
+/* ==================== SLIDERS ==================== */
+.stSlider > div > div > div > div {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+}
+
+/* ==================== BADGES ==================== */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge.tier-1 {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-green);
+}
+
+.badge.tier-2 {
+    background-color: rgba(6, 182, 212, 0.1);
+    color: var(--info-cyan);
+}
+
+.badge.tier-3 {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--warning-orange);
+}
+
+.badge.tier-4 {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-red);
+}
+
+/* ==================== ALERTS ==================== */
+.stAlert {
+    border-radius: var(--radius-md);
+    border: none;
+    padding: var(--spacing-md);
+}
+
+.stSuccess {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid var(--success-green);
+}
+
+.stInfo {
+    background-color: rgba(6, 182, 212, 0.1);
+    border-left: 4px solid var(--info-cyan);
+}
+
+.stWarning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid var(--warning-orange);
+}
+
+.stError {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid var(--danger-red);
+}
+
+/* ==================== LOADING SPINNER ==================== */
+.stSpinner > div {
+    border-color: var(--primary-blue) !important;
+    border-right-color: transparent !important;
+}
+
+/* ==================== SCROLLBAR ==================== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-light);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-secondary);
+    border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-blue);
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+    .main-header {
+        font-size: 1.75rem;
+    }
+    
+    .page-header {
+        font-size: 1.5rem;
+    }
+    
+    .metric-card-value {
+        font-size: 1.5rem;
+    }
+    
+    .block-container {
+        padding: var(--spacing-md) !important;
+    }
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.mt-1 { margin-top: var(--spacing-xs); }
+.mt-2 { margin-top: var(--spacing-sm); }
+.mt-3 { margin-top: var(--spacing-md); }
+.mt-4 { margin-top: var(--spacing-lg); }
+.mt-5 { margin-top: var(--spacing-xl); }
+
+.mb-1 { margin-bottom: var(--spacing-xs); }
+.mb-2 { margin-bottom: var(--spacing-sm); }
+.mb-3 { margin-bottom: var(--spacing-md); }
+.mb-4 { margin-bottom: var(--spacing-lg); }
+.mb-5 { margin-bottom: var(--spacing-xl); }
+
+.p-1 { padding: var(--spacing-xs); }
+.p-2 { padding: var(--spacing-sm); }
+.p-3 { padding: var(--spacing-md); }
+.p-4 { padding: var(--spacing-lg); }
+.p-5 { padding: var(--spacing-xl); }
