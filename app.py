@@ -30,43 +30,173 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for professional light theme
+# Custom CSS - Horizon UI Design System
 st.markdown("""
 <style>
-    .main { background-color: #F4F7FE; }
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+    
+    * { font-family: 'DM Sans', sans-serif !important; }
+    
+    .main { background-color: #F4F7FE !important; padding: 2rem 1rem !important; }
+    
     .main-header {
-        font-size: 2.5rem; font-weight: 700; text-align: center; padding: 1.5rem 0;
-        background: linear-gradient(135deg, #4318FF 0%, #7551FF 100%);
+        font-size: 34px !important; font-weight: 700 !important; text-align: center;
+        padding: 1.5rem 0; background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        background-clip: text; margin-bottom: 2rem;
+        background-clip: text; margin-bottom: 2rem; letter-spacing: -0.02em;
     }
+    
     .sub-header {
-        font-size: 1.5rem; font-weight: 600; color: #1B2559; margin-top: 1rem;
-        border-bottom: 3px solid #4318FF; padding-bottom: 0.5rem;
+        font-size: 24px !important; font-weight: 700 !important; color: #2B3674 !important;
+        margin: 2rem 0 1rem 0 !important; padding-bottom: 0;
     }
-    .metric-card {
-        background-color: #FFFFFF; border-radius: 16px; padding: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #E2E8F0;
-        margin: 0.5rem 0; transition: all 0.3s ease;
+    
+    /* Horizon UI Card Styling */
+    .element-container { margin-bottom: 20px; }
+    
+    div[data-testid="stMetric"] {
+        background-color: #FFFFFF; border-radius: 20px; padding: 20px;
+        box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12);
+        border: none; transition: all 0.3s ease;
     }
-    .metric-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: translateY(-4px); }
+    
+    div[data-testid="stMetric"]:hover {
+        box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.20);
+        transform: translateY(-4px);
+    }
+    
+    [data-testid="stMetricLabel"] {
+        font-size: 12px !important; font-weight: 500 !important;
+        color: #A3AED0 !important; text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    [data-testid="stMetricValue"] {
+        font-size: 24px !important; font-weight: 700 !important;
+        color: #2B3674 !important;
+    }
+    
+    [data-testid="stMetricDelta"] {
+        font-size: 12px !important; font-weight: 600 !important;
+    }
+    
+    /* Chart Containers */
+    .js-plotly-plot, .plotly {
+        background-color: #FFFFFF !important;
+        border-radius: 20px !important;
+        padding: 24px !important;
+        box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12) !important;
+    }
+    
+    /* Buttons - Horizon UI Style */
     .stButton>button {
-        background: linear-gradient(135deg, #4318FF 0%, #7551FF 100%); color: white;
-        font-weight: 600; border-radius: 10px; padding: 0.75rem 2rem; border: none;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;
+        background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%) !important;
+        color: white !important; font-weight: 600 !important; font-size: 14px !important;
+        border-radius: 12px !important; padding: 12px 24px !important; border: none !important;
+        box-shadow: 0px 18px 40px rgba(67, 24, 255, 0.20) !important;
+        transition: all 0.3s ease !important; text-transform: none !important;
     }
-    .stButton>button:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
-    .filter-section {
-        background-color: #FFFFFF; border-radius: 16px; padding: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #E2E8F0; margin-bottom: 1rem;
+    
+    .stButton>button:hover {
+        transform: scale(1.02) !important;
+        box-shadow: 0px 18px 40px rgba(67, 24, 255, 0.35) !important;
     }
+    
+    /* Sidebar - Horizon UI Style */
+    section[data-testid="stSidebar"] {
+        background-color: #FFFFFF !important;
+        box-shadow: 0px 7px 23px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    section[data-testid="stSidebar"] .stRadio > label {
+        background-color: transparent !important;
+        color: #A3AED0 !important; font-weight: 500 !important;
+        padding: 11px 16px !important; border-radius: 15px !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    section[data-testid="stSidebar"] .stRadio > label:hover {
+        background-color: #F4F7FE !important;
+    }
+    
+    section[data-testid="stSidebar"] .stRadio [data-checked="true"] {
+        background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%) !important;
+        color: white !important;
+    }
+    
+    /* Input Fields */
+    .stSelectbox, .stMultiSelect, .stTextInput, .stNumberInput {
+        background-color: #FFFFFF; border-radius: 12px;
+    }
+    
+    .stSelectbox > div > div, .stMultiSelect > div > div {
+        border: 1px solid #E0E5F2 !important;
+        border-radius: 12px !important; background-color: #FFFFFF !important;
+    }
+    
+    /* Sliders */
+    .stSlider > div > div > div > div {
+        background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%) !important;
+    }
+    
+    /* Tables */
+    .dataframe {
+        border: none !important; border-radius: 20px !important; overflow: hidden !important;
+        box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12) !important;
+    }
+    
     .dataframe thead tr th {
-        background: linear-gradient(135deg, #4318FF 0%, #7551FF 100%);
-        color: white !important; font-weight: 600; padding: 1rem;
+        background-color: #F4F7FE !important; color: #A3AED0 !important;
+        font-weight: 500 !important; font-size: 12px !important;
+        text-transform: uppercase !important; padding: 16px !important;
+        border: none !important;
     }
-    .dataframe tbody tr:hover { background-color: rgba(67, 24, 255, 0.05); }
-    [data-testid="stMetricValue"] { font-size: 2rem; font-weight: 700; color: #1B2559; }
-    [data-testid="stMetricLabel"] { font-size: 0.875rem; font-weight: 500; color: #A3AED0; text-transform: uppercase; }
+    
+    .dataframe tbody tr {
+        border-bottom: 1px solid #F4F7FE !important;
+        transition: background-color 0.2s ease !important;
+    }
+    
+    .dataframe tbody tr:hover {
+        background-color: rgba(134, 140, 255, 0.05) !important;
+    }
+    
+    .dataframe tbody tr td {
+        padding: 16px !important; color: #2B3674 !important;
+        font-size: 14px !important; border: none !important;
+    }
+    
+    /* Expanders */
+    .streamlit-expanderHeader {
+        background-color: #FFFFFF !important; border-radius: 12px !important;
+        border: 1px solid #E0E5F2 !important; font-weight: 600 !important;
+        color: #2B3674 !important;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background-color: #F4F7FE !important;
+    }
+    
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px; background-color: transparent;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: transparent; border: none;
+        color: #A3AED0; font-weight: 600; padding: 12px 24px;
+        border-radius: 12px;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%) !important;
+        color: white !important;
+    }
+    
+    /* Remove Streamlit Branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
