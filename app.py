@@ -37,6 +37,26 @@ st.markdown("""
     
     * { font-family: 'DM Sans', sans-serif !important; }
     
+    /* FORCE SIDEBAR TO ALWAYS BE VISIBLE */
+    [data-testid="stSidebar"] {
+        display: block !important;
+        visibility: visible !important;
+        min-width: 21rem !important;
+        max-width: 21rem !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    
+    [data-testid="stSidebar"][aria-expanded="false"] {
+        display: block !important;
+        margin-left: 0 !important;
+    }
+    
+    /* Show collapse button */
+    [data-testid="collapsedControl"] {
+        display: block !important;
+    }
+    
     .main { background-color: #F4F7FE !important; padding: 2rem 1rem !important; }
     
     .main-header {
