@@ -34,7 +34,32 @@ st.set_page_config(
 with open('assets/ppx_theme.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# PPx Ocean Theme is now fully loaded from ppx_theme.css
+# FORCE SIDEBAR VISIBILITY - Additional override
+st.markdown("""
+<style>
+    /* ABSOLUTE FORCE SIDEBAR VISIBLE */
+    section[data-testid="stSidebar"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 21rem !important;
+        min-width: 21rem !important;
+        transform: translateX(0) !important;
+        position: relative !important;
+        z-index: 999 !important;
+    }
+    
+    section[data-testid="stSidebar"] > div {
+        display: block !important;
+        visibility: visible !important;
+    }
+    
+    /* Show hamburger menu */
+    button[kind="header"] {
+        display: block !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 
 @st.cache_data
