@@ -30,195 +30,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS - Horizon UI Design System
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
-    
-    * { font-family: 'DM Sans', sans-serif !important; }
-    
-    /* FORCE SIDEBAR TO ALWAYS BE VISIBLE */
-    [data-testid="stSidebar"] {
-        display: block !important;
-        visibility: visible !important;
-        min-width: 21rem !important;
-        max-width: 21rem !important;
-        transform: none !important;
-        transition: none !important;
-    }
-    
-    [data-testid="stSidebar"][aria-expanded="false"] {
-        display: block !important;
-        margin-left: 0 !important;
-    }
-    
-    /* Show collapse button */
-    [data-testid="collapsedControl"] {
-        display: block !important;
-    }
-    
-    .main { background-color: #F4F7FE !important; padding: 2rem 1rem !important; }
-    
-    .main-header {
-        font-size: 34px !important; font-weight: 700 !important; text-align: center;
-        padding: 1.5rem 0; background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        background-clip: text; margin-bottom: 2rem; letter-spacing: -0.02em;
-    }
-    
-    .sub-header {
-        font-size: 24px !important; font-weight: 700 !important; color: #2B3674 !important;
-        margin: 2rem 0 1rem 0 !important; padding-bottom: 0;
-    }
-    
-    /* Horizon UI Card Styling */
-    .element-container { margin-bottom: 20px; }
-    
-    div[data-testid="stMetric"] {
-        background-color: #FFFFFF; border-radius: 20px; padding: 20px;
-        box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12);
-        border: none; transition: all 0.3s ease;
-    }
-    
-    div[data-testid="stMetric"]:hover {
-        box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.20);
-        transform: translateY(-4px);
-    }
-    
-    [data-testid="stMetricLabel"] {
-        font-size: 12px !important; font-weight: 500 !important;
-        color: #A3AED0 !important; text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-    }
-    
-    [data-testid="stMetricValue"] {
-        font-size: 24px !important; font-weight: 700 !important;
-        color: #2B3674 !important;
-    }
-    
-    [data-testid="stMetricDelta"] {
-        font-size: 12px !important; font-weight: 600 !important;
-    }
-    
-    /* Chart Containers */
-    .js-plotly-plot, .plotly {
-        background-color: #FFFFFF !important;
-        border-radius: 20px !important;
-        padding: 24px !important;
-        box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12) !important;
-    }
-    
-    /* Buttons - Horizon UI Style */
-    .stButton>button {
-        background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%) !important;
-        color: white !important; font-weight: 600 !important; font-size: 14px !important;
-        border-radius: 12px !important; padding: 12px 24px !important; border: none !important;
-        box-shadow: 0px 18px 40px rgba(67, 24, 255, 0.20) !important;
-        transition: all 0.3s ease !important; text-transform: none !important;
-    }
-    
-    .stButton>button:hover {
-        transform: scale(1.02) !important;
-        box-shadow: 0px 18px 40px rgba(67, 24, 255, 0.35) !important;
-    }
-    
-    /* Sidebar - Horizon UI Style */
-    section[data-testid="stSidebar"] {
-        background-color: #FFFFFF !important;
-        box-shadow: 0px 7px 23px rgba(0, 0, 0, 0.05) !important;
-    }
-    
-    section[data-testid="stSidebar"] .stRadio > label {
-        background-color: transparent !important;
-        color: #A3AED0 !important; font-weight: 500 !important;
-        padding: 11px 16px !important; border-radius: 15px !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    section[data-testid="stSidebar"] .stRadio > label:hover {
-        background-color: #F4F7FE !important;
-    }
-    
-    section[data-testid="stSidebar"] .stRadio [data-checked="true"] {
-        background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%) !important;
-        color: white !important;
-    }
-    
-    /* Input Fields */
-    .stSelectbox, .stMultiSelect, .stTextInput, .stNumberInput {
-        background-color: #FFFFFF; border-radius: 12px;
-    }
-    
-    .stSelectbox > div > div, .stMultiSelect > div > div {
-        border: 1px solid #E0E5F2 !important;
-        border-radius: 12px !important; background-color: #FFFFFF !important;
-    }
-    
-    /* Sliders */
-    .stSlider > div > div > div > div {
-        background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%) !important;
-    }
-    
-    /* Tables */
-    .dataframe {
-        border: none !important; border-radius: 20px !important; overflow: hidden !important;
-        box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12) !important;
-    }
-    
-    .dataframe thead tr th {
-        background-color: #F4F7FE !important; color: #A3AED0 !important;
-        font-weight: 500 !important; font-size: 12px !important;
-        text-transform: uppercase !important; padding: 16px !important;
-        border: none !important;
-    }
-    
-    .dataframe tbody tr {
-        border-bottom: 1px solid #F4F7FE !important;
-        transition: background-color 0.2s ease !important;
-    }
-    
-    .dataframe tbody tr:hover {
-        background-color: rgba(134, 140, 255, 0.05) !important;
-    }
-    
-    .dataframe tbody tr td {
-        padding: 16px !important; color: #2B3674 !important;
-        font-size: 14px !important; border: none !important;
-    }
-    
-    /* Expanders */
-    .streamlit-expanderHeader {
-        background-color: #FFFFFF !important; border-radius: 12px !important;
-        border: 1px solid #E0E5F2 !important; font-weight: 600 !important;
-        color: #2B3674 !important;
-    }
-    
-    .streamlit-expanderHeader:hover {
-        background-color: #F4F7FE !important;
-    }
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px; background-color: transparent;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background-color: transparent; border: none;
-        color: #A3AED0; font-weight: 600; padding: 12px 24px;
-        border-radius: 12px;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%) !important;
-        color: white !important;
-    }
-    
-    /* Remove Streamlit Branding */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-</style>
-""", unsafe_allow_html=True)
+# Load PPx Ocean Theme CSS
+with open('assets/ppx_theme.css') as f:
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+# PPx Ocean Theme is now fully loaded from ppx_theme.css
 
 
 @st.cache_data
@@ -274,9 +90,21 @@ def train_models(_features_df, _interactions_df):
 
 
 def main():
-    # Header
-    st.markdown('<h1 class="main-header">🏭 Smart Supplier Recommendation System</h1>', unsafe_allow_html=True)
-    st.markdown("### AI-Powered Procurement Intelligence Platform")
+    # Header with PPx Ocean Theme
+    st.markdown('''
+    <div style="text-align: center; padding: 2rem 0; margin-bottom: 2rem;">
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(11, 122, 184, 0.1); border: 1px solid rgba(11, 122, 184, 0.2); border-radius: 9999px; padding: 0.375rem 1rem; font-size: 0.875rem; font-weight: 600; color: #0B7AB8; margin-bottom: 1rem;">
+            <span style="height: 6px; width: 6px; border-radius: 50%; background: #24A896; animation: pulse 2s ease-in-out infinite;"></span>
+            Trusted by 500+ Water Technology Companies
+        </div>
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, #096285 0%, #20B2E6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0.5rem 0;">
+            🏭 Smart Supplier Recommendation System
+        </h1>
+        <p style="font-size: 1.125rem; color: #5D6B7F; max-width: 800px; margin: 0 auto;">
+            AI-Powered Procurement Intelligence Platform for Water Technology Suppliers
+        </p>
+    </div>
+    ''', unsafe_allow_html=True)
     
     # Initialize session state
     if 'data_loaded' not in st.session_state:
