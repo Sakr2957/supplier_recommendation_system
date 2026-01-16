@@ -127,7 +127,7 @@ def main():
     st.sidebar.title("📊 Navigation")
     page = st.sidebar.radio(
         "Select Page",
-        ["🏠 Home & Overview", "🎯 Supplier Recommendations", "📈 Supplier Analytics", "🔬 ML Model Insights", "📊 Clustering Analysis"]
+        ["🏠 Home & Overview", "🎯 Supplier Recommendations", "🌟 PPx SVD Recommender", "📈 Supplier Analytics", "🔬 ML Model Insights", "📊 Clustering Analysis"]
     )
     
     # Route to selected page
@@ -135,6 +135,8 @@ def main():
         show_home_page()
     elif page == "🎯 Supplier Recommendations":
         show_recommendation_page()
+    elif page == "🌟 PPx SVD Recommender":
+        show_ppx_recommender_page()
     elif page == "📈 Supplier Analytics":
         show_analytics_page()
     elif page == "🔬 ML Model Insights":
@@ -442,6 +444,189 @@ def show_clustering_page():
                     st.markdown("**Top Countries:**")
                     for country, count in list(profile['top_countries'].items())[:3]:
                         st.write(f"• {country}: {count}")
+
+
+def show_ppx_recommender_page():
+    """PPx SVD-based Recommender System Page"""
+    st.markdown('<h2 class="sub-header">🌟 PPx SVD Recommender System</h2>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background: rgba(11, 122, 184, 0.1); border-left: 4px solid #0B7AB8; padding: 1rem; border-radius: 0.5rem; margin-bottom: 2rem;">
+        <p style="margin: 0; color: #132340;">
+            <strong>Enterprise-grade recommendation</strong> using <strong>SVD matrix factorization</strong> with governance thresholds and supplier index re-ranking.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Initialize PPx recommender if not already done
+    if 'ppx_recommender' not in st.session_state:
+        with st.spinner("🔧 Initializing PPx SVD Recommender..."):
+            from utils.ppx_recommender import PPxRecommenderSystem
+            
+            ppx = PPxRecommenderSystem()
+            
+            # Get data
+            data = st.session_state.data
+            
+            # Prepare interactions
+            pdt_df = data['purchasing_delivery']
+            ppx.prepare_interactions(pdt_df)
+            
+            # Train SVD
+            ppx.train_svd(n_factors=50, n_epochs=30)
+            
+            # Calculate supplier index
+            ppx.calculate_supplier_index(
+                data['performance'],
+                data['risk'],
+                data['financial'],
+                data['sustainability']
+            )
+            
+            # Filter eligible suppliers
+            ppx.filter_eligible_suppliers(
+                data['performance'],
+                data['risk'],
+                data['financial'],
+                data['sustainability']
+            )
+            
+            st.session_state.ppx_recommender = ppx
+        
+        st.success("✅ PPx SVD Recommender initialized successfully!")
+    
+    ppx = st.session_state.ppx_recommender
+    
+    # Configuration section
+    st.markdown("### ⚙️ Configuration")
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        # Material selection
+        materials = ppx.get_available_materials()
+        if materials:
+            selected_material = st.selectbox(
+                "📦 Select Material Category",
+                materials,
+                help="Choose the material category for which you want supplier recommendations"
+            )
+        else:
+            st.error("No materials available")
+            return
+    
+    with col2:
+        # Alpha parameter
+        alpha = st.slider(
+            "🎯 SVD Weight (α)",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.7,
+            step=0.05,
+            help="Weight of SVD score vs Supplier Index. Higher = more emphasis on historical interactions"
+        )
+        
+        # Number of recommendations
+        top_n = st.slider(
+            "🔢 Number of Recommendations",
+            min_value=3,
+            max_value=20,
+            value=10,
+            step=1
+        )
+    
+    # Governance thresholds expander
+    with st.expander("🛡️ Governance Thresholds (Click to customize)"):
+        st.markdown("**Risk Thresholds (Maximum allowed)**")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            max_fin_risk = st.number_input("Max Financial Risk", value=70, min_value=0, max_value=100)
+        with col2:
+            max_comp_risk = st.number_input("Max Compliance Risk", value=70, min_value=0, max_value=100)
+        with col3:
+            max_sc_risk = st.number_input("Max Supply Chain Risk", value=70, min_value=0, max_value=100)
+        
+        st.markdown("**Performance Thresholds (Minimum required)**")
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            min_env = st.number_input("Min Environmental", value=50, min_value=0, max_value=100)
+        with col2:
+            min_social = st.number_input("Min Social", value=50, min_value=0, max_value=100)
+        with col3:
+            min_gov = st.number_input("Min Governance", value=50, min_value=0, max_value=100)
+        with col4:
+            min_qual = st.number_input("Min Quality", value=60, min_value=0, max_value=100)
+        
+        if st.button("✅ Update Thresholds"):
+            ppx.update_thresholds(
+                max_financial_risk=max_fin_risk,
+                max_compliance_risk=max_comp_risk,
+                max_supply_chain_risk=max_sc_risk,
+                min_environmental=min_env,
+                min_social=min_social,
+                min_governance=min_gov,
+                min_quality=min_qual
+            )
+            # Re-filter eligible suppliers
+            ppx.filter_eligible_suppliers(
+                st.session_state.data['performance'],
+                st.session_state.data['risk'],
+                st.session_state.data['financial'],
+                st.session_state.data['sustainability']
+            )
+            st.success("✅ Thresholds updated!")
+    
+    # Get recommendations button
+    if st.button("🚀 Get Recommendations", type="primary"):
+        with st.spinner("🔍 Finding best suppliers..."):
+            recommendations = ppx.recommend_suppliers(
+                material_name=selected_material,
+                top_n=top_n,
+                alpha=alpha
+            )
+        
+        if len(recommendations) == 0:
+            st.warning("⚠️ No eligible suppliers found for this material with current thresholds. Try relaxing the governance thresholds.")
+        else:
+            st.markdown(f"### 🏆 Top {len(recommendations)} Recommended Suppliers for: **{selected_material}**")
+            
+            # Display recommendations
+            for idx, row in recommendations.iterrows():
+                with st.container():
+                    st.markdown(f"""
+                    <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 24px -4px rgba(19, 35, 64, 0.08); border-left: 4px solid #0B7AB8;">
+                        <h4 style="margin: 0 0 0.5rem 0; color: #132340;">#{idx + 1} - {row['Supplier']}</h4>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        st.metric("🎯 Final Score", f"{row['Final_Score']:.1f}/100")
+                    with col2:
+                        st.metric("🧠 SVD Score", f"{row['SVD_Score']:.2f}/5")
+                    with col3:
+                        st.metric("📊 Supplier Index", f"{row['Supplier_Index']:.1f}/100")
+            
+            # Download button
+            st.markdown("---")
+            st.download_button(
+                label="📥 Download Recommendations (CSV)",
+                data=recommendations.to_csv(index=False),
+                file_name=f"ppx_recommendations_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv"
+            )
+            
+            # Explanation
+            st.markdown("""
+            <div style="background: rgba(36, 168, 150, 0.1); border-radius: 0.5rem; padding: 1rem; margin-top: 1rem;">
+                <p style="margin: 0; font-size: 0.875rem; color: #132340;">
+                    <strong>💡 How it works:</strong> The PPx recommender uses <strong>SVD (Singular Value Decomposition)</strong> to learn patterns from historical purchase data, 
+                    then re-ranks results using the <strong>Supplier Index</strong> (quality, delivery, risk, ESG). Only suppliers meeting governance thresholds are shown.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
