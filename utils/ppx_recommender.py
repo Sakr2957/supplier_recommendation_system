@@ -1,26 +1,31 @@
 """
-PPx SVD-Based Recommender System
----------------------------------
-Enterprise-grade supplier recommendation using matrix factorization
+PPx Recommender System - Lightweight Version
+---------------------------------------------
+Enterprise-grade supplier recommendation using collaborative filtering
 with governance thresholds and supplier index re-ranking.
+No external ML libraries required (pandas + numpy only).
 """
 
 import pandas as pd
 import numpy as np
-from surprise import Dataset, Reader, SVD
-from surprise.model_selection import train_test_split
+from sklearn.decomposition import TruncatedSVD
+from sklearn.preprocessing import StandardScaler
 
 
 class PPxRecommenderSystem:
     """
-    SVD-based recommendation system with eligibility gates and index re-ranking
+    Collaborative filtering recommendation system with eligibility gates and index re-ranking
     """
     
     def __init__(self):
         self.svd_model = None
         self.supplier_index = None
         self.eligible_suppliers = None
-        self.svd_df = None
+        self.interaction_matrix = None
+        self.supplier_to_idx = None
+        self.material_to_idx = None
+        self.idx_to_supplier = None
+        self.idx_to_material = None
         self.thresholds = {
             "max_financial_risk": 70,
             "max_compliance_risk": 70,
@@ -34,13 +39,13 @@ class PPxRecommenderSystem:
     
     def prepare_interactions(self, pdt_df):
         """
-        Build supplier-material interactions from purchase data
+        Build supplier-material interaction matrix from purchase data
         
         Args:
             pdt_df: DataFrame with columns [Supplier, Category Family, Sub Category, PO Amount, Po Number]
         
         Returns:
-            DataFrame with [Supplier, Material, Rating]
+            Interaction matrix
         """
         # Create material identifier
         pdt_df = pdt_df.copy()
@@ -60,34 +65,43 @@ class PPxRecommenderSystem:
         interactions["Value_Score"] = interactions["Total_Value"] / (interactions["Total_Value"].max() + 0.001)
         interactions["Freq_Score"] = interactions["PO_Count"] / (interactions["PO_Count"].max() + 0.001)
         
-        # Calculate rating (1-5 scale)
+        # Calculate rating (0-5 scale)
         interactions["Rating"] = (
             0.6 * interactions["Value_Score"] +
             0.4 * interactions["Freq_Score"]
         ) * 5
         
-        self.svd_df = interactions[["Supplier", "Material", "Rating"]]
-        return self.svd_df
+        # Create mappings
+        suppliers = sorted(interactions["Supplier"].unique())
+        materials = sorted(interactions["Material"].unique())
+        
+        self.supplier_to_idx = {s: i for i, s in enumerate(suppliers)}
+        self.material_to_idx = {m: i for i, m in enumerate(materials)}
+        self.idx_to_supplier = {i: s for s, i in self.supplier_to_idx.items()}
+        self.idx_to_material = {i: m for m, i in self.material_to_idx.items()}
+        
+        # Create interaction matrix
+        n_suppliers = len(suppliers)
+        n_materials = len(materials)
+        self.interaction_matrix = np.zeros((n_suppliers, n_materials))
+        
+        for _, row in interactions.iterrows():
+            s_idx = self.supplier_to_idx[row["Supplier"]]
+            m_idx = self.material_to_idx[row["Material"]]
+            self.interaction_matrix[s_idx, m_idx] = row["Rating"]
+        
+        return self.interaction_matrix
     
-    def train_svd(self, n_factors=50, n_epochs=30, lr_all=0.005, reg_all=0.02):
+    def train_svd(self, n_components=50):
         """
-        Train SVD model on supplier-material interactions
+        Train SVD model on supplier-material interactions using sklearn
         """
-        if self.svd_df is None:
+        if self.interaction_matrix is None:
             raise ValueError("Must call prepare_interactions() first")
         
-        reader = Reader(rating_scale=(1, 5))
-        dataset = Dataset.load_from_df(self.svd_df, reader)
-        trainset, _ = train_test_split(dataset, test_size=0.2, random_state=42)
-        
-        self.svd_model = SVD(
-            n_factors=n_factors,
-            n_epochs=n_epochs,
-            lr_all=lr_all,
-            reg_all=reg_all,
-            random_state=42
-        )
-        self.svd_model.fit(trainset)
+        # Use TruncatedSVD from sklearn
+        self.svd_model = TruncatedSVD(n_components=min(n_components, min(self.interaction_matrix.shape) - 1), random_state=42)
+        self.svd_model.fit(self.interaction_matrix)
         
         return self.svd_model
     
@@ -188,20 +202,23 @@ class PPxRecommenderSystem:
         if self.eligible_suppliers is None:
             raise ValueError("Must filter eligible suppliers first")
         
-        # Get all suppliers
-        suppliers = self.svd_df["Supplier"].unique()
-        
-        # Predict SVD scores for all suppliers
-        preds = []
-        for s in suppliers:
-            try:
-                pred_score = self.svd_model.predict(s, material_name).est
-                preds.append((s, pred_score))
-            except:
-                continue
-        
-        if not preds:
+        # Check if material exists
+        if material_name not in self.material_to_idx:
             return pd.DataFrame(columns=["Supplier", "Final_Score", "SVD_Score", "Supplier_Index"])
+        
+        material_idx = self.material_to_idx[material_name]
+        
+        # Reconstruct the full matrix
+        reconstructed = self.svd_model.inverse_transform(self.svd_model.transform(self.interaction_matrix))
+        
+        # Get predictions for this material
+        material_scores = reconstructed[:, material_idx]
+        
+        # Create predictions dataframe
+        preds = []
+        for supplier_idx, score in enumerate(material_scores):
+            supplier = self.idx_to_supplier[supplier_idx]
+            preds.append((supplier, score))
         
         pred_df = pd.DataFrame(preds, columns=["Supplier", "SVD_Score"])
         
@@ -243,9 +260,9 @@ class PPxRecommenderSystem:
     
     def get_available_materials(self):
         """Get list of all available materials"""
-        if self.svd_df is None:
+        if self.material_to_idx is None:
             return []
-        return sorted(self.svd_df["Material"].unique().tolist())
+        return sorted(self.material_to_idx.keys())
     
     def update_thresholds(self, **kwargs):
         """Update governance thresholds"""
